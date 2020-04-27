@@ -49,11 +49,11 @@ public class TodoControllerTest {
 
     @Test
     public void find_todoId_OK() throws Exception {
-        mockMvc.perform(get("/Todos/1"))
+        mockMvc.perform(get("/tasks/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.description", is("Learning java")))
-                .andExpect(jsonPath("isDone", is(true)));
+                .andExpect(jsonPath("$.isDone", is(true)));
         verify(mockRepository, times(1)).findById(1L);
     }
 
@@ -63,7 +63,7 @@ public class TodoControllerTest {
                 new Todo(1L, "Learning java", true),
                 new Todo(2L, "Learning python", false));
         when(mockRepository.findAll()).thenReturn(todos);
-        mockMvc.perform(get("/Todos"))
+        mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))
@@ -84,7 +84,7 @@ public class TodoControllerTest {
     public void save_todo_OK() throws Exception {
         Todo newTodo = new Todo(1L, "Learning java", true);
         when(mockRepository.save(any(Todo.class))).thenReturn(newTodo);
-        mockMvc.perform(post("/Todos")
+        mockMvc.perform(post("/tasks")
                 .content(om.writeValueAsString(newTodo))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -98,7 +98,7 @@ public class TodoControllerTest {
     public void update_todo_OK() throws Exception {
         Todo updateTodo = new Todo(1L, "Learning java", true);
         when(mockRepository.save(any(Todo.class))).thenReturn(updateTodo);
-        mockMvc.perform(put("/Todos/1")
+        mockMvc.perform(put("/tasks/1")
                 .content(om.writeValueAsString(updateTodo))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -109,10 +109,21 @@ public class TodoControllerTest {
     }
 
     @Test
+    public void update_todo_400() throws Exception {
+        Todo updateTodo = new Todo(1L, "", true);
+        when(mockRepository.save(any(Todo.class))).thenReturn(updateTodo);
+        mockMvc.perform(put("/tasks/1")
+                .content(om.writeValueAsString(updateTodo))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+        verify(mockRepository, times(0)).save(any(Todo.class));
+    }
+
+    @Test
     public void patch_todoIsDone_OK() throws Exception {
         when(mockRepository.save(any(Todo.class))).thenReturn(new Todo());
         String patchInJson = "{\"isDone\":\"False\"}";
-        mockMvc.perform(patch("/Todos/1")
+        mockMvc.perform(patch("/tasks/1")
                 .content(patchInJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -124,7 +135,7 @@ public class TodoControllerTest {
     @Test
     public void patch_todoIsDone_405() throws Exception {
         String patchInJson = "{\"description\":\"Learning Angular\"}";
-        mockMvc.perform(patch("/Todos/1")
+        mockMvc.perform(patch("/tasks/1")
                 .content(patchInJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isMethodNotAllowed());
@@ -135,9 +146,16 @@ public class TodoControllerTest {
     @Test
     public void delete_todo_OK() throws Exception {
         doNothing().when(mockRepository).deleteById(1L);
-        mockMvc.perform(delete("/Todos/1"))
+        mockMvc.perform(delete("/tasks/1"))
                 .andExpect(status().isOk());
         verify(mockRepository, times(1)).deleteById(1L);
     }
 
+    @Test
+    public void delete_todo_404() throws Exception {
+        doNothing().when(mockRepository).deleteById(1L);
+        mockMvc.perform(delete("/tasks/10"))
+                .andExpect(status().isNotFound());
+        verify(mockRepository, times(0)).deleteById(1L);
+    }
 }

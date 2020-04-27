@@ -21,4 +21,9 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         response.sendError(HttpStatus.METHOD_NOT_ALLOWED.value());
     }
 
+    @ExceptionHandler(TodoBadRequestException.class)
+    public void springTodoBadRequestException(HttpServletResponse response) throws IOException {
+        response.sendError(HttpStatus.BAD_REQUEST.value());
+    }
+
 }

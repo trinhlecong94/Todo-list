@@ -49,9 +49,9 @@ public class Todo {
     @Override
     public String toString() {
         return "Todo{"
-                + "id=" + id
-                + ", description='" + description + '\''
-                + ", isDone=" + isDone
+                + " id= " + id
+                + ", description=' " + description + '\''
+                + ", isDone= " + isDone
                 + '}';
     }
 

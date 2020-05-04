@@ -134,12 +134,23 @@ public class TodoControllerTest {
 
     @Test
     public void patch_todoIsDone_405() throws Exception {
-        String patchInJson = "{\"description\":\"Learning Angular\"}";
+        String patchInJson = "{\"done\":\"False\"}";
         mockMvc.perform(patch("/tasks/1")
                 .content(patchInJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andExpect(status().isMethodNotAllowed());
         verify(mockRepository, times(1)).findById(1L);
+        verify(mockRepository, times(0)).save(any(Todo.class));
+    }
+
+    @Test
+    public void patch_todoIsDone_400() throws Exception {
+        String patchInJson = "{\"description\":\"Angular\"}";
+        mockMvc.perform(patch("/tasks/1")
+                .content(patchInJson)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+        verify(mockRepository, times(0)).findById(1L);
         verify(mockRepository, times(0)).save(any(Todo.class));
     }
 

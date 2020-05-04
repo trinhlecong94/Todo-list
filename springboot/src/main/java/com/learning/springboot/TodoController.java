@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class TodoController {
@@ -16,20 +17,17 @@ public class TodoController {
     @Autowired
     private TodoRepository repository;
 
-    // Find
     @GetMapping("/tasks")
     List<Todo> findAll() {
         return (List<Todo>) repository.findAll();
     }
 
-    // Save
     @PostMapping("/tasks")
     @ResponseStatus(HttpStatus.CREATED)
     Todo newTodo(@RequestBody Todo newTodo) {
         return repository.save(newTodo);
     }
 
-    // Find
     @GetMapping("/tasks/{id}")
     Todo findOne(@PathVariable Long id) throws Exception {
         return repository.findById(id)
@@ -38,7 +36,6 @@ public class TodoController {
                 });
     }
 
-    //update
     @PutMapping("/tasks/{id}")
     Todo update(@RequestBody Todo todo, @PathVariable Long id) {
         return repository.findById(id)
@@ -57,14 +54,12 @@ public class TodoController {
                 });
     }
 
-    // update isDone only
     @PatchMapping("/tasks/{id}")
-    Todo patch(@RequestBody Map<String, String> update, @PathVariable Long id) {
+    Todo patch(@RequestBody Map<String, Boolean> update, @PathVariable Long id) {
         return repository.findById(id)
                 .map(x -> {
-                    String isDone = update.get("isDone");
-                    if (!StringUtils.isEmpty(isDone)) {
-                        x.setIsDone(Boolean.valueOf(isDone));
+                    if (update.containsKey("isDone")) {
+                        x.setIsDone(update.get("isDone"));
                         return repository.save(x);
                     } else {
                         throw new TodoUnSupportedFieldPatchException(update.keySet());

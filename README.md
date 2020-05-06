@@ -8,9 +8,13 @@ This repository includes a small project for using Spring boot.
 ## IDE
 - Apache Netbean IDE 11.1
 ## Build
-- mvn clean install
+```bash
+mvn clean install
+```
 ## Run
-- java -jar target/springboot-0.0.1-SNAPSHOT.jar
+```bash
+mvn spring-boot:run
+```
 ## API method
 | Method | url |Description |
 | ------------- | ------------- | ------------- | 
